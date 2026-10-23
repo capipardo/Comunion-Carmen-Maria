@@ -1180,6 +1180,59 @@ text-decoration: none;
   opacity: 0.65;
   cursor: wait;
 }
+    .menu-section {
+  padding: 80px 20px;
+  text-align: center;
+  background: #fffaf8;
+}
+
+.menu-section h2 {
+  margin-bottom: 30px;
+}
+
+.menu-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+  max-width: 1000px;
+  margin: 35px auto 0;
+}
+
+.menu-card {
+  background: white;
+  padding: 18px;
+  border-radius: 24px;
+  box-shadow: 0 14px 35px rgba(80,60,45,0.10);
+}
+
+.menu-card h3 {
+  margin: 8px 0 18px;
+  font-size: 24px;
+  color: #6f5360;
+}
+
+.menu-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+}
+
+.menu-note {
+  margin-top: 25px;
+  font-size: 13px;
+  color: #8a756f;
+}
+
+@media (max-width: 700px) {
+  .menu-options {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-section {
+    padding: 60px 16px;
+  }
+}
 </style>
 </head>
 <body>
@@ -1426,6 +1479,51 @@ text-decoration: none;
       <p>
         Nos ayudará mucho saber si podrás acompañarnos.
       </p>
+<!-- MENÚ -->
+<!-- MENÚ -->
+<section class="menu-section">
+
+  <div class="container">
+
+    <p class="section-eyebrow">MENÚ</p>
+
+    <h2>Nuestro menú</h2>
+
+    <div class="menu-options">
+
+      <div class="menu-card">
+        <h3>Menú Adultos</h3>
+        <img src="menu-adultos.jpg" alt="Menú adultos" class="menu-image">
+      </div>
+
+      <div class="menu-card">
+        <h3>Menú Infantil</h3>
+        <img src="menu-infantil.jpg" alt="Menú infantil" class="menu-image">
+      </div>
+
+    </div>
+
+    <p class="menu-note">
+      Si tienes alguna alergia o intolerancia, indícalo en la confirmación de asistencia.
+    </p>
+
+  </div>
+
+</section>
+
+
+<!-- CONFIRMACIÓN DE ASISTENCIA -->
+<section class="rsvp">
+  <div class="container">
+
+    <h2>Confirma tu asistencia</h2>
+
+    <p>
+      Nos ayudará mucho saber si podrás acompañarnos.
+    </p>
+
+    <form class="rsvp-form" id="rsvpForm">
+<!-- CONFIRMACIÓN DE ASISTENCIA -->
 
    <form class="rsvp-form" id="rsvpForm">
 
