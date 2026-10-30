@@ -1948,10 +1948,10 @@ photoInput.addEventListener("change", async () => {
       const { error: dbError } =
         await supabaseClient
           .from("fotos")
-          .insert({
-            nombre_archivo: file.name,
-            ruta_storage: storagePath
-          });
+         .insert({
+  nombre: file.name,
+  ruta: storagePath
+});
 
       if (dbError) {
         throw dbError;
