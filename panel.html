@@ -724,7 +724,7 @@ async function loadStats() {
   const totalPersonas =
     confirmados.reduce(
       (total, invitado) =>
-       total + (Number(invitado.numero_asistentes) || 0)
+       total + (Number(invitado.numero_asistentes) || 0),
       0
     );
 
