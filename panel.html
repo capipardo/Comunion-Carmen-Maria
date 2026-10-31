@@ -844,14 +844,14 @@ async function loadStats() {
 
     <div class="photo-actions">
 
-      <a
-        href="${signedData.signedUrl}"
-        download="${foto.nombre || "foto"}"
-        class="photo-button download-button"
-        target="_blank"
-      >
-        Descargar
-      </a>
+     <button
+  type="button"
+  class="photo-button download-button"
+  data-path="${foto.ruta}"
+  data-name="${foto.nombre || "foto"}"
+>
+  Descargar
+</button>
 
       <button
         type="button"
@@ -870,7 +870,46 @@ async function loadStats() {
     gallery.appendChild(card);
 const deleteButton =
   card.querySelector(".delete-button");
+const downloadButton =
+  card.querySelector(".download-button");
 
+downloadButton.addEventListener(
+  "click",
+  async () => {
+
+    downloadButton.disabled = true;
+    downloadButton.textContent = "Descargando...";
+
+    const { data, error } =
+      await supabaseClient.storage
+        .from("recuerdos")
+        .download(foto.ruta);
+
+    if (error) {
+      console.error("Error descargando foto:", error);
+      alert("No se pudo descargar la fotografía.");
+
+      downloadButton.disabled = false;
+      downloadButton.textContent = "Descargar";
+      return;
+    }
+
+    const url = URL.createObjectURL(data);
+    const enlace = document.createElement("a");
+
+    enlace.href = url;
+    enlace.download = foto.nombre || "foto";
+    document.body.appendChild(enlace);
+
+    enlace.click();
+    enlace.remove();
+
+    URL.revokeObjectURL(url);
+
+    downloadButton.disabled = false;
+    downloadButton.textContent = "Descargar";
+  }
+);
 deleteButton.addEventListener(
   "click",
   async () => {
