@@ -724,7 +724,7 @@ async function loadStats() {
   const totalPersonas =
     confirmados.reduce(
       (total, invitado) =>
-        total + (Number(invitado.asistentes) || 0),
+       total + (Number(invitado.numero_asistentes) || 0)
       0
     );
 
@@ -982,7 +982,7 @@ function renderGuests(invitados) {
         <td>${asistencia}</td>
 
         <td>
-          ${invitado.asistentes ?? "-"}
+          ${invitado.numero_asistentes ?? "-"}
         </td>
 
         <td>
@@ -1128,7 +1128,7 @@ document
         invitado.telefono || "",
         invitado.email || "",
         invitado.asistencia || "",
-        invitado.asistentes ?? "",
+       invitado.numero_asistentes ?? "",
         invitado.alergias || "",
         invitado.transporte || "",
         invitado.acompanantes || "",
