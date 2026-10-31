@@ -812,7 +812,7 @@ async function loadStats() {
       await supabaseClient.storage
         .from("recuerdos")
         .createSignedUrl(
-          foto.ruta_storage,
+          foto.ruta,
           3600
         );
 
@@ -833,20 +833,20 @@ async function loadStats() {
   card.innerHTML = `
   <img
     src="${signedData.signedUrl}"
-    alt="${foto.nombre_archivo || "Foto del evento"}"
+    alt="${foto.nombre || "Foto del evento"}"
   >
 
   <div class="photo-info">
 
     <div class="photo-name">
-      ${foto.nombre_archivo || "Fotografía"}
+      ${foto.nombre || "Fotografía"}
     </div>
 
     <div class="photo-actions">
 
       <a
         href="${signedData.signedUrl}"
-        download="${foto.nombre_archivo || "foto"}"
+        download="${foto.nombre || "foto"}"
         class="photo-button download-button"
         target="_blank"
       >
@@ -857,7 +857,7 @@ async function loadStats() {
         type="button"
         class="photo-button delete-button"
         data-id="${foto.id}"
-        data-path="${foto.ruta_storage}"
+        data-path="${foto.ruta}"
       >
         Eliminar
       </button>
@@ -890,7 +890,7 @@ deleteButton.addEventListener(
     const { error: storageError } =
       await supabaseClient.storage
         .from("recuerdos")
-        .remove([foto.ruta_storage]);
+        .remove([foto.ruta]);
 
     if (storageError) {
 
