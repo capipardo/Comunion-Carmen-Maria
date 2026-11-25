@@ -225,7 +225,9 @@
       >
         Entrar al panel
       </button>
-
+<button type="button" id="forgotPassword">
+  ¿Has olvidado tu contraseña?
+</button>
       <p
         id="loginMessage"
         class="login-message"
@@ -313,7 +315,35 @@
 
       }
     );
+document.getElementById("forgotPassword")
+  .addEventListener("click", async () => {
 
+    const email =
+      document.getElementById("adminEmail").value.trim();
+
+    if (!email) {
+      alert("Introduce tu correo electrónico.");
+      return;
+    }
+
+    const { error } =
+      await supabaseClient.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo:
+            new URL("reset-password.html", window.location.href).href
+        }
+      );
+
+    if (error) {
+      alert("No se ha podido enviar el correo de recuperación.");
+      console.error(error);
+      return;
+    }
+
+    alert("Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.");
+
+  });
   </script>
 
 </body>
