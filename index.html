@@ -1537,7 +1537,7 @@ text-decoration: none;
       Nos ayudará mucho saber si podrás acompañarnos.
     </p>
 
-    <form class="rsvp-form" id="rsvpForm">
+   
 <!-- CONFIRMACIÓN DE ASISTENCIA -->
 
    <form class="rsvp-form" id="rsvpForm">
@@ -1640,6 +1640,121 @@ text-decoration: none;
        
     </div>
   </section>
+      <!-- =========================
+     REGALOS Y DEDICATORIAS
+========================== -->
+
+<section id="seccionRegalos"
+  style="background:#f6f2e9; padding:60px 20px;">
+
+  <div class="container">
+
+    <div class="section-decoration">✦</div>
+
+    <p class="section-eyebrow">
+      REGALOS Y DETALLES
+    </p>
+
+    <h2>Un detalle para Carmen María</h2>
+
+    <p style="text-align:center; margin:20px auto; max-width:600px;">
+      Tu presencia es mi mejor regalo.
+      Si además deseas tener un detalle conmigo,
+      puedes hacerlo desde aquí.
+      ¡Muchas gracias por formar parte de este día!
+    </p>
+
+    <form class="rsvp-form" id="regaloForm">
+
+      <div class="form-group">
+        <label>NOMBRE Y APELLIDOS</label>
+        <input type="text" name="nombre"
+          placeholder="Tu nombre y apellidos" required>
+      </div>
+
+      <div class="form-group">
+        <label>¿QUÉ TIPO DE REGALO DESEAS ENVIAR?</label>
+
+        <select id="tipoRegalo" name="tipo" required>
+          <option value="">Selecciona una opción</option>
+          <option value="fisico">🎁 Regalo físico</option>
+          <option value="economico">💝 Regalo económico</option>
+        </select>
+      </div>
+
+      <div id="regaloFisico" hidden>
+
+        <div class="form-group">
+          <label>DESCRIPCIÓN DEL REGALO</label>
+          <input type="text" name="descripcion"
+            placeholder="¿Qué regalo has elegido?">
+        </div>
+
+        <div class="form-group">
+          <label>FOTOGRAFÍA DEL REGALO</label>
+          <input type="file" id="fotoRegalo"
+            accept="image/jpeg,image/png,image/webp">
+          <small>Máximo 5 MB por fotografía.</small>
+        </div>
+
+      </div>
+
+      <div id="regaloEconomico" hidden>
+
+        <div class="form-group">
+          <label>FORMA DE APORTACIÓN</label>
+
+          <select id="metodoRegalo" name="metodo_pago">
+            <option value="">Selecciona una opción</option>
+            <option value="bizum">Bizum</option>
+            <option value="transferencia">
+              Transferencia bancaria
+            </option>
+          </select>
+        </div>
+
+        <div id="datosBizum" hidden>
+          <p>Datos de Bizum pendientes de configurar.</p>
+        </div>
+
+        <div id="datosTransferencia" hidden>
+          <p>Datos bancarios pendientes de configurar.</p>
+        </div>
+
+        <div class="form-group">
+          <label>IMPORTE EN EUROS</label>
+          <input type="number" name="importe"
+            min="0.01" max="99999999.99" step="0.01"
+            placeholder="Importe de tu regalo">
+        </div>
+
+        <p>
+          La aportación se realiza desde tu aplicación
+          bancaria. Este formulario no realiza ningún cobro.
+        </p>
+
+      </div>
+
+      <div class="form-group">
+        <label>DEDICATORIA PARA CARMEN MARÍA</label>
+        <textarea name="dedicatoria" rows="4"
+          placeholder="Escribe aquí tu mensaje especial..."></textarea>
+      </div>
+
+      <button type="submit"
+        class="confirm-button"
+        id="enviarRegaloButton" disabled>
+        Enviar mi regalo
+      </button>
+
+      <p id="regaloStatus"
+        class="rsvp-status" role="status"></p>
+
+    </form>
+
+  </div>
+
+</section>
 <!-- =========================
      RECUERDOS Y FOTOS
 ========================= -->
@@ -2108,7 +2223,222 @@ rsvpStatus.classList.add("success");
     "Confirmar asistencia";
 
 });
-    
+ // =====================================
+// REGALOS Y DEDICATORIAS
+// =====================================
+
+const regaloForm =
+  document.getElementById("regaloForm");
+
+const tipoRegalo =
+  document.getElementById("tipoRegalo");
+
+const metodoRegalo =
+  document.getElementById("metodoRegalo");
+
+const regaloFisico =
+  document.getElementById("regaloFisico");
+
+const regaloEconomico =
+  document.getElementById("regaloEconomico");
+
+const datosBizum =
+  document.getElementById("datosBizum");
+
+const datosTransferencia =
+  document.getElementById("datosTransferencia");
+
+const enviarRegaloButton =
+  document.getElementById("enviarRegaloButton");
+
+function actualizarOpcionesRegalo() {
+
+  regaloFisico.hidden =
+    tipoRegalo.value !== "fisico";
+
+  regaloEconomico.hidden =
+    tipoRegalo.value !== "economico";
+
+  datosBizum.hidden =
+    tipoRegalo.value !== "economico" ||
+    metodoRegalo.value !== "bizum";
+
+  datosTransferencia.hidden =
+    tipoRegalo.value !== "economico" ||
+    metodoRegalo.value !== "transferencia";
+
+  metodoRegalo.required =
+    tipoRegalo.value === "economico";
+
+  regaloForm.elements.importe.required =
+    tipoRegalo.value === "economico";
+
+}
+
+tipoRegalo.addEventListener(
+  "change",
+  actualizarOpcionesRegalo
+);
+
+metodoRegalo.addEventListener(
+  "change",
+  actualizarOpcionesRegalo
+);
+
+actualizarOpcionesRegalo();  
+    // =====================================
+// ENVIAR REGALOS A SUPABASE
+// =====================================
+
+const regaloStatus =
+  document.getElementById("regaloStatus");
+
+const fotoRegalo =
+  document.getElementById("fotoRegalo");
+
+// Activar aportaciones cuando se configuren
+// los datos bancarios reales.
+
+const pagosRegalosConfigurados = false;
+
+let enviandoRegalo = false;
+
+regaloForm.addEventListener("submit", async (event) => {
+
+  event.preventDefault();
+
+  if (enviandoRegalo) return;
+
+  regaloStatus.textContent = "";
+  regaloStatus.classList.remove("success", "error");
+
+  const datos = new FormData(regaloForm);
+  const tipo = tipoRegalo.value;
+
+  let fotoRuta = null;
+  let importe = null;
+  let metodoPago = null;
+
+  enviandoRegalo = true;
+  enviarRegaloButton.disabled = true;
+  enviarRegaloButton.textContent = "Enviando regalo...";
+
+  try {
+
+    if (!datos.get("nombre").trim()) {
+      throw new Error("Introduce tu nombre.");
+    }
+
+    if (tipo === "fisico") {
+
+      const archivo = fotoRegalo.files[0];
+
+      if (archivo) {
+
+        const formatos = {
+          "image/jpeg": "jpg",
+          "image/png": "png",
+          "image/webp": "webp"
+        };
+
+        if (!formatos[archivo.type]) {
+          throw new Error("Utiliza una imagen JPG, PNG o WEBP.");
+        }
+
+        if (archivo.size > 5 * 1024 * 1024) {
+          throw new Error("La fotografía supera los 5 MB.");
+        }
+
+        const ruta =
+          "fotos/" + crypto.randomUUID() +
+          "." + formatos[archivo.type];
+
+        const { error: errorFoto } =
+          await supabaseClient.storage
+            .from("regalos")
+            .upload(ruta, archivo, {
+              contentType: archivo.type,
+              upsert: false
+            });
+
+        if (errorFoto) {
+          console.error(errorFoto);
+          throw new Error("No se pudo subir la fotografía.");
+        }
+
+        fotoRuta = ruta;
+
+      }
+
+    } else if (tipo === "economico") {
+
+      if (!pagosRegalosConfigurados) {
+        throw new Error("Las aportaciones económicas todavía no están disponibles.");
+      }
+
+      metodoPago = metodoRegalo.value;
+      importe = Number(datos.get("importe"));
+
+      if (!["bizum", "transferencia"].includes(metodoPago)) {
+        throw new Error("Selecciona una forma de aportación.");
+      }
+
+      if (!Number.isFinite(importe) || importe <= 0) {
+        throw new Error("Introduce un importe válido.");
+      }
+
+    } else {
+
+      throw new Error("Selecciona el tipo de regalo.");
+
+    }
+
+    const { error } =
+      await supabaseClient
+        .from("regalos")
+        .insert({
+
+          nombre: datos.get("nombre").trim(),
+          tipo: tipo,
+          descripcion: tipo === "fisico"
+            ? datos.get("descripcion")
+            : null,
+          dedicatoria: datos.get("dedicatoria"),
+          foto_ruta: fotoRuta,
+          metodo_pago: metodoPago,
+          importe: importe
+
+        });
+
+    if (error) {
+      console.error(error);
+      throw new Error("No se pudo registrar el regalo.");
+    }
+
+    regaloStatus.classList.add("success");
+
+    regaloStatus.textContent =
+      tipo === "fisico"
+        ? "¡Regalo registrado! Muchas gracias por tu detalle."
+        : "¡Aportación comunicada! Pendiente de confirmación.";
+
+    regaloForm.reset();
+    actualizarOpcionesRegalo();
+
+  } catch (error) {
+
+    regaloStatus.classList.add("error");
+    regaloStatus.textContent = error.message;
+
+  } finally {
+
+    enviandoRegalo = false;
+    enviarRegaloButton.disabled = true;
+    enviarRegaloButton.textContent = "Enviar mi regalo";
+
+  }
+
+});
   </script>
 
 </body>
