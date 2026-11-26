@@ -1743,7 +1743,7 @@ text-decoration: none;
 
       <button type="submit"
         class="confirm-button"
-        id="enviarRegaloButton" disabled>
+        id="enviarRegaloButton" >
         Enviar mi regalo
       </button>
 
@@ -2433,7 +2433,7 @@ regaloForm.addEventListener("submit", async (event) => {
   } finally {
 
     enviandoRegalo = false;
-    enviarRegaloButton.disabled = true;
+    enviarRegaloButton.disabled = false;
     enviarRegaloButton.textContent = "Enviar mi regalo";
 
   }
