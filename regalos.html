@@ -1,0 +1,835 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Gestión de regalos - Carmen María</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f5f1e8;
+      color: #30576d;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      background: #30576d;
+      color: white;
+      padding: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    header h2 {
+      margin: 0;
+      font-family: Georgia, serif;
+      font-weight: normal;
+    }
+
+    .back-button {
+      color: white;
+      text-decoration: none;
+      border: 1px solid #ffffff80;
+      padding: 10px 18px;
+      border-radius: 30px;
+    }
+
+    main {
+      max-width: 1150px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+
+    h1, h2 {
+      font-family: Georgia, serif;
+      font-weight: normal;
+    }
+
+    .subtitle {
+      color: #88755f;
+      margin-bottom: 25px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 18px;
+      margin: 25px 0;
+    }
+
+    .stat {
+      background: white;
+      padding: 24px;
+      border-radius: 18px;
+      box-shadow: 0 8px 25px #00000008;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+
+    .stat span {
+      color: #88755f;
+      font-size: 13px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    input, select {
+      padding: 12px;
+      border: 1px solid #d6cbb9;
+      border-radius: 8px;
+      background: #faf8f4;
+      color: #30576d;
+      font-size: 14px;
+      max-width: 100%;
+    }
+
+    #buscarRegalo {
+      flex: 1;
+      min-width: 160px;
+    }
+
+    button, .action {
+      border: none;
+      border-radius: 25px;
+      padding: 10px 16px;
+      cursor: pointer;
+      background: #30576d;
+      color: white;
+      font-size: 13px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    button:hover, .action:hover {
+      opacity: 0.85;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .danger {
+      background: #a45d52;
+    }
+
+    .secondary {
+      background: #ad9168;
+    }
+
+    .gift-card {
+      border: 1px solid #e8dfd1;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 15px;
+      background: #fdfcf9;
+      overflow-wrap: anywhere;
+    }
+
+    .gift-card h3 {
+      margin-top: 0;
+    }
+
+    .gift-card p {
+      line-height: 1.6;
+      color: #52646c;
+      white-space: pre-wrap;
+    }
+
+    .gift-photo {
+      display: block;
+      width: 100%;
+      max-width: 220px;
+      max-height: 240px;
+      object-fit: contain;
+      background: #f5f1e8;
+      border-radius: 12px;
+      margin: 15px 0;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .pending {
+      background: #f3e5cb;
+      color: #89602b;
+    }
+
+    .received {
+      background: #dceee0;
+      color: #28663a;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .message {
+      text-align: center;
+      margin: 20px 0;
+      line-height: 1.5;
+    }
+
+    .error {
+      color: #a43737;
+    }
+
+    .success {
+      color: #28663a;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 600px) {
+      main {
+        padding: 15px;
+      }
+
+      .panel {
+        padding: 15px;
+      }
+
+      .stat {
+        padding: 18px;
+      }
+
+      header h2 {
+        font-size: 21px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h2>Comunión de Carmen María</h2>
+
+  <a href="panel.html" class="back-button">
+    ← Volver al panel
+  </a>
+</header>
+
+<main>
+
+  <p id="estado" class="message" role="status">
+    Comprobando acceso autorizado...
+  </p>
+
+  <div id="contenido" hidden>
+
+    <h1>🎁 Gestión de regalos</h1>
+
+    <p class="subtitle">
+      Consulta los regalos, fotografías, dedicatorias
+      y aportaciones de tus invitados.
+    </p>
+
+    <div class="stats">
+
+      <div class="stat">
+        <strong id="totalFisicos">0</strong>
+        <span>Regalos físicos</span>
+      </div>
+
+      <div class="stat">
+        <strong id="totalEconomicos">0 €</strong>
+        <span>Aportaciones confirmadas</span>
+      </div>
+
+      <div class="stat">
+        <strong id="totalPendientes">0</strong>
+        <span>Regalos pendientes</span>
+      </div>
+
+      <div class="stat">
+        <strong id="totalFotos">0</strong>
+        <span>Fotografías recibidas</span>
+      </div>
+
+    </div>
+
+    <section class="panel">
+
+      <h2>Regalos registrados</h2>
+
+      <div class="filters">
+
+        <input type="search" id="buscarRegalo"
+          placeholder="Buscar invitado..."
+          aria-label="Buscar invitado">
+
+        <select id="filtroRegalo"
+          aria-label="Filtrar regalos">
+          <option value="todos">Todos los regalos</option>
+          <option value="fisico">Regalos físicos</option>
+          <option value="economico">Regalos económicos</option>
+          <option value="pendiente">Pendientes</option>
+          <option value="recibido">Recibidos</option>
+        </select>
+
+        <button id="actualizarRegalos">
+          Actualizar
+        </button>
+
+      </div>
+
+      <div id="listaRegalos"></div>
+
+    </section>
+
+  </div>
+
+</main>
+
+<script>
+
+const SUPABASE_URL =
+  "https://lmmiokgimftzekjvzgre.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_zrSbb4AJXAuRmL7sgTpaZg_zsWn_iq_";
+
+const ADMIN_ID =
+  "ac216e4f-2b11-49ff-af4a-e93f55ad0e2a";
+
+const supabaseClient =
+  supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const estado =
+  document.getElementById("estado");
+
+const contenido =
+  document.getElementById("contenido");
+
+const listaRegalos =
+  document.getElementById("listaRegalos");
+
+const buscarRegalo =
+  document.getElementById("buscarRegalo");
+
+const filtroRegalo =
+  document.getElementById("filtroRegalo");
+
+let regalos = [];
+let ocupado = false;
+
+const moneda = new Intl.NumberFormat("es-ES", {
+  style: "currency",
+  currency: "EUR"
+});
+
+function mostrarMensaje(texto, tipo = "") {
+  estado.textContent = texto;
+  estado.className = "message " + tipo;
+}
+
+async function comprobarAcceso() {
+
+  const { data, error } =
+    await supabaseClient.auth.getUser();
+
+  if (error || !data.user ||
+      data.user.id !== ADMIN_ID) {
+
+    contenido.hidden = true;
+    window.location.replace("admin.html");
+    return false;
+
+  }
+
+  return true;
+
+}
+
+async function cargarRegalos() {
+
+  if (ocupado) return;
+
+  ocupado = true;
+  mostrarMensaje("Cargando regalos...");
+
+  try {
+
+    if (!(await comprobarAcceso())) return;
+
+    const { data, error } =
+      await supabaseClient
+        .from("regalos")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    regalos = data || [];
+
+    actualizarEstadisticas();
+    mostrarRegalos();
+
+    contenido.hidden = false;
+    mostrarMensaje("");
+
+  } catch (error) {
+
+    console.error(error);
+    mostrarMensaje(
+      "No se han podido cargar los regalos.",
+      "error"
+    );
+
+  } finally {
+
+    ocupado = false;
+
+  }
+
+}
+
+function actualizarEstadisticas() {
+
+  const fisicos =
+    regalos.filter(r => r.tipo === "fisico");
+
+  const economicos =
+    regalos.filter(r =>
+      r.tipo === "economico" && r.recibido
+    );
+
+  const importe =
+    economicos.reduce(
+      (total, r) => total + Number(r.importe || 0),
+      0
+    );
+
+  document.getElementById("totalFisicos")
+    .textContent = fisicos.length;
+
+  document.getElementById("totalEconomicos")
+    .textContent = moneda.format(importe);
+
+  document.getElementById("totalPendientes")
+    .textContent =
+      regalos.filter(r => !r.recibido).length;
+
+  document.getElementById("totalFotos")
+    .textContent =
+      regalos.filter(r => r.foto_ruta).length;
+
+}
+
+function crearElemento(etiqueta, texto, clase) {
+
+  const elemento =
+    document.createElement(etiqueta);
+
+  if (texto !== undefined) {
+    elemento.textContent = texto;
+  }
+
+  if (clase) {
+    elemento.className = clase;
+  }
+
+  return elemento;
+
+}
+
+function crearBoton(texto, clase, accion) {
+
+  const boton =
+    crearElemento("button", texto, clase);
+
+  boton.type = "button";
+  boton.addEventListener("click", accion);
+
+  return boton;
+
+}
+
+function mostrarRegalos() {
+
+  listaRegalos.replaceChildren();
+
+  const busqueda =
+    buscarRegalo.value.toLowerCase().trim();
+
+  const filtro = filtroRegalo.value;
+
+  const filtrados = regalos.filter(regalo => {
+
+    const coincideNombre =
+      (regalo.nombre || "")
+        .toLowerCase()
+        .includes(busqueda);
+
+    const coincideFiltro =
+      filtro === "todos" ||
+      regalo.tipo === filtro ||
+      (filtro === "pendiente" && !regalo.recibido) ||
+      (filtro === "recibido" && regalo.recibido);
+
+    return coincideNombre && coincideFiltro;
+
+  });
+
+  if (!filtrados.length) {
+
+    listaRegalos.appendChild(
+      crearElemento(
+        "p",
+        "No hay regalos para mostrar.",
+        "message"
+      )
+    );
+
+    return;
+
+  }
+
+  for (const regalo of filtrados) {
+
+    const tarjeta =
+      crearElemento("article", undefined, "gift-card");
+
+    tarjeta.appendChild(
+      crearElemento("h3", regalo.nombre)
+    );
+
+    tarjeta.appendChild(
+      crearElemento(
+        "span",
+        regalo.recibido
+          ? "Recibido"
+          : "Pendiente de recibir",
+        "badge " + (
+          regalo.recibido ? "received" : "pending"
+        )
+      )
+    );
+
+    const fecha =
+      new Date(regalo.created_at)
+        .toLocaleString("es-ES");
+
+    tarjeta.appendChild(
+      crearElemento("p", "Fecha: " + fecha)
+    );
+
+    if (regalo.tipo === "fisico") {
+
+      tarjeta.appendChild(
+        crearElemento("p",
+          "🎁 Regalo físico: " +
+          (regalo.descripcion || "Sin descripción")
+        )
+      );
+
+    } else {
+
+      const metodo =
+        regalo.metodo_pago === "bizum"
+          ? "Bizum"
+          : "Transferencia bancaria";
+
+      tarjeta.appendChild(
+        crearElemento(
+          "p",
+          metodo + ": " +
+          moneda.format(Number(regalo.importe || 0))
+        )
+      );
+
+    }
+
+    tarjeta.appendChild(
+      crearElemento(
+        "p",
+        "Dedicatoria: " +
+        (regalo.dedicatoria || "Sin dedicatoria")
+      )
+    );
+
+    const zonaFoto = crearElemento("div");
+    tarjeta.appendChild(zonaFoto);
+
+    const acciones =
+      crearElemento("div", undefined, "actions");
+
+    if (regalo.foto_ruta) {
+
+      acciones.appendChild(
+        crearBoton(
+          "Ver fotografía",
+          "secondary",
+          () => verFotografia(regalo, zonaFoto)
+        )
+      );
+
+    }
+
+    acciones.appendChild(
+      crearBoton(
+        regalo.recibido
+          ? "Marcar pendiente"
+          : "Marcar recibido",
+        "",
+        () => cambiarEstado(regalo)
+      )
+    );
+
+    acciones.appendChild(
+      crearBoton(
+        "Eliminar",
+        "danger",
+        () => eliminarRegalo(regalo)
+      )
+    );
+
+    tarjeta.appendChild(acciones);
+    listaRegalos.appendChild(tarjeta);
+
+  }
+
+}
+
+async function verFotografia(regalo, zonaFoto) {
+
+  zonaFoto.textContent = "Cargando fotografía...";
+
+  try {
+
+    if (!(await comprobarAcceso())) return;
+
+    const { data, error } =
+      await supabaseClient.storage
+        .from("regalos")
+        .createSignedUrl(regalo.foto_ruta, 300);
+
+    if (error) throw error;
+
+    const imagen = document.createElement("img");
+
+    imagen.src = data.signedUrl;
+    imagen.alt = "Fotografía del regalo";
+    imagen.className = "gift-photo";
+    imagen.referrerPolicy = "no-referrer";
+
+    const enlace = document.createElement("a");
+
+    enlace.href = data.signedUrl;
+    enlace.target = "_blank";
+    enlace.rel = "noopener noreferrer";
+    enlace.className = "action";
+    enlace.textContent = "Ampliar fotografía";
+
+    zonaFoto.replaceChildren(imagen, enlace);
+
+  } catch (error) {
+
+    console.error(error);
+    zonaFoto.textContent =
+      "No se ha podido cargar la fotografía.";
+
+  }
+
+}
+
+async function cambiarEstado(regalo) {
+
+  if (ocupado) return;
+
+  ocupado = true;
+
+  let correcto = false;
+
+  try {
+
+    if (!(await comprobarAcceso())) return;
+
+    const { data, error } =
+      await supabaseClient
+        .from("regalos")
+        .update({ recibido: !regalo.recibido })
+        .eq("id", regalo.id)
+        .select("id")
+        .single();
+
+    if (error || !data) {
+      throw error || new Error("Registro no actualizado");
+    }
+
+    correcto = true;
+
+  } catch (error) {
+
+    console.error(error);
+    mostrarMensaje(
+      "No se ha podido actualizar el regalo.",
+      "error"
+    );
+
+  } finally {
+
+    ocupado = false;
+
+  }
+
+  if (correcto) {
+    await cargarRegalos();
+  }
+
+}
+
+async function eliminarRegalo(regalo) {
+
+  if (ocupado) return;
+
+  if (!confirm(
+    "¿Seguro que deseas eliminar este regalo?"
+  )) return;
+
+  ocupado = true;
+
+  let eliminado = false;
+  let aviso = "";
+
+  try {
+
+    if (!(await comprobarAcceso())) return;
+
+    const { data, error } =
+      await supabaseClient
+        .from("regalos")
+        .delete()
+        .eq("id", regalo.id)
+        .select("id")
+        .single();
+
+    if (error || !data) {
+      throw error || new Error("Registro no eliminado");
+    }
+
+    eliminado = true;
+
+    if (regalo.foto_ruta) {
+
+      const { count, error: errorConsulta } =
+        await supabaseClient
+          .from("regalos")
+          .select("id", {
+            count: "exact",
+            head: true
+          })
+          .eq("foto_ruta", regalo.foto_ruta);
+
+      if (errorConsulta) {
+
+        aviso = "Registro eliminado. Revisa la fotografía en Storage.";
+
+      } else if (count === 0) {
+
+        const { error: errorFoto } =
+          await supabaseClient.storage
+            .from("regalos")
+            .remove([regalo.foto_ruta]);
+
+        if (errorFoto) {
+          aviso = "Registro eliminado, pero queda pendiente borrar la fotografía.";
+        }
+
+      }
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    if (eliminado) {
+      aviso = "Registro eliminado. Revisa el almacenamiento.";
+    } else {
+      mostrarMensaje(
+        "No se ha podido eliminar el regalo.",
+        "error"
+      );
+    }
+
+  } finally {
+
+    ocupado = false;
+
+  }
+
+  if (eliminado) {
+
+    await cargarRegalos();
+
+    mostrarMensaje(
+      aviso || "Regalo eliminado correctamente.",
+      aviso ? "error" : "success"
+    );
+
+  }
+
+}
+
+buscarRegalo.addEventListener("input", mostrarRegalos);
+
+filtroRegalo.addEventListener("change", mostrarRegalos);
+
+document.getElementById("actualizarRegalos")
+  .addEventListener("click", cargarRegalos);
+
+supabaseClient.auth.onAuthStateChange((evento) => {
+
+  if (evento === "SIGNED_OUT") {
+    contenido.hidden = true;
+    listaRegalos.replaceChildren();
+    window.location.replace("admin.html");
+  }
+
+});
+
+cargarRegalos();
+
+</script>
+
+</body>
+</html>
